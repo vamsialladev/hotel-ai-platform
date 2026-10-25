@@ -1,7 +1,7 @@
 -e .[postgres]
 pytest~=9.1
 pytest-cov~=7.1
-ruff==0.17.0
+ruff==0.17.2
 pip-audit~=2.9
 streamlit~=1.66.1
 cyclonedx-bom~=7.1
