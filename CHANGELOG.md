@@ -3,6 +3,14 @@
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions
 follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-10-25
+
+### Fixed
+
+- Admin waterfall: steps are numbered and ordered explicitly, so every span gets its own row (the Altair sort
+  collapsed five steps into two labels on the first live check); zero-length checks get a visible bar.
+- Cost metrics: dollar signs escaped (Streamlit rendered "$0.0002 of $1.00" as LaTeX and the signs vanished).
+
 ## [0.1.0] - 2026-10-25
 
 ### Added

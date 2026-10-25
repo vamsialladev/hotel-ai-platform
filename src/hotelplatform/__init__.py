@@ -4,4 +4,4 @@ Modules: guardrails, injection, language, pii, secrets_mask, tracing, oplog, jso
 redteam, daily_summary, retention, version. See README.md.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

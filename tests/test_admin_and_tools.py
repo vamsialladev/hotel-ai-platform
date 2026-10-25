@@ -77,13 +77,16 @@ def test_waterfall_rows_depth_and_order():
         {"span_id": "a", "parent_id": None, "name": "agent", "start_ms": 0, "duration_ms": 50},
     ]
     w = admin_ui.waterfall_rows(spans)
-    assert [r["step"] for r in w] == ["agent", "  tool:find_booking"]
-    assert w[1]["end_ms"] > w[1]["start_ms"]  # zero-length steps stay visible
+    assert [r["step"] for r in w] == ["1. agent", "2. · tool:find_booking"]
+    assert w[1]["end_ms"] - w[1]["start_ms"] >= 0.5  # zero-length steps stay visible (1% of the request)
+    same = admin_ui.waterfall_rows([{"name": "tool", "start_ms": 0}, {"name": "tool", "start_ms": 5}])
+    assert len({r["step"] for r in same}) == 2  # two spans with one name keep their own rows
 
 
 def test_cap_line_and_ms():
-    assert admin_ui.cap_line(0.5, 2.0) == "$0.5000 of $2.00 (25%)"
-    assert admin_ui.cap_line(0.5, None) == "$0.5000"
+    # Escaped: Streamlit turns "$0.5 of $2" into LaTeX and the dollar signs vanish (seen on the live Traces page)
+    assert admin_ui.cap_line(0.5, 2.0) == r"\$0.5000 of \$2.00 (25%)"
+    assert admin_ui.cap_line(0.5, None) == r"\$0.5000"
     assert admin_ui.ms(None) == "—" and admin_ui.ms(1500) == "1.50 s"
 
 

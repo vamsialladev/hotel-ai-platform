@@ -55,15 +55,19 @@ def waterfall_rows(spans: list[dict]) -> list[dict]:
         parent = by_id.get(s.get("parent_id"))
         return 0 if parent is None or seen > 10 else 1 + depth(parent, seen + 1)
 
+    ordered = sorted(spans, key=lambda s: s.get("start_ms") or 0)
+    total = max([float(s.get("start_ms") or 0) + float(s.get("duration_ms") or 0) for s in ordered] or [0.0])
+    sliver = max(total * 0.01, 1.0)  # a zero-length check still gets a visible bar on a 4-second axis
     rows = []
-    for i, s in enumerate(sorted(spans, key=lambda s: s.get("start_ms") or 0)):
+    for i, s in enumerate(ordered):
         start = float(s.get("start_ms") or 0)
         dur = float(s.get("duration_ms") or 0)
         rows.append({
             "order": i,
-            "step": ("  " * depth(s)) + (s.get("name") or "?"),
+            # Numbered so every row is its own label (two spans with one name would otherwise share a row)
+            "step": f"{i + 1}. " + ("· " * depth(s)) + (s.get("name") or "?"),
             "start_ms": start,
-            "end_ms": start + max(dur, 0.5),  # zero-length checks still get a visible sliver
+            "end_ms": start + max(dur, sliver),
             "duration_ms": dur,
             "status": s.get("status") or "ok",
         })  # fmt: skip
@@ -81,9 +85,10 @@ def csv_text(rows: list[dict]) -> str:
 
 
 def cap_line(spent: float, cap: float | None) -> str:
+    """Escaped dollar signs: Streamlit renders "$0.0002 of $1.00" as LaTeX and the signs vanish."""
     if not cap:
-        return f"${spent:.4f}"
-    return f"${spent:.4f} of ${cap:.2f} ({spent / cap:.0%})"
+        return f"\\${spent:.4f}"
+    return f"\\${spent:.4f} of \\${cap:.2f} ({spent / cap:.0%})"
 
 
 def ms(value) -> str:
@@ -224,7 +229,7 @@ def _waterfall(st, spans: list[dict]) -> None:
             alt.Chart(alt.Data(values=rows))
             .mark_bar()
             .encode(
-                y=alt.Y("step:N", sort=alt.SortField("order"), title=None),
+                y=alt.Y("step:N", sort=[r["step"] for r in rows], title=None),  # explicit order, one row each
                 x=alt.X("start_ms:Q", title="milliseconds from the start of the request"),
                 x2="end_ms:Q",
                 color=alt.Color(
