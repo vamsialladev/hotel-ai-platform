@@ -118,6 +118,20 @@ admin_ui.render(store, app_title="Demo", version="1.0+abc", cost_cap_day=1.0, co
     assert at.metric[0].value == "1" and at.metric[1].value == "100.0%"
 
 
+def test_admin_page_without_its_own_gate(tmp_path, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+
+    monkeypatch.setenv("OPS_TEST_DIR", str(tmp_path))
+    script = """
+import os
+from hotelplatform import admin_ui, oplog
+store = oplog.OpsStore("demo", url="", log_dir=os.environ["OPS_TEST_DIR"])
+admin_ui.render(store, app_title="Demo", version="1", require_gate=False, title="Traces")
+"""
+    at = AppTest.from_string(script, default_timeout=30).run()
+    assert not at.exception and at.title[0].value == "Traces" and at.metric[0].value == "0"
+
+
 # ------------------------------------------------------------------ bots
 @pytest.mark.parametrize(
     "params,expected",

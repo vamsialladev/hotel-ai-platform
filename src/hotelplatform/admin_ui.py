@@ -122,16 +122,19 @@ def render(
     dependencies: Callable[[], dict[str, str]] | None = None,
     scope: str = "admin",
     password_env: str = "ADMIN_PASSWORD",
+    require_gate: bool = True,
+    title: str | None = None,
 ) -> None:
+    """require_gate=False: the app has already checked its own sign-in (stage 1's Admin gate); no second form."""
     import streamlit as st
 
-    if not gate(st, scope, password_env, f"{app_title}: Admin"):
+    if require_gate and not gate(st, scope, password_env, f"{app_title}: Admin"):
         return
     store.flush(timeout_s=2.0)
-    st.title(f"{app_title}: Admin")
+    st.title(title or f"{app_title}: Admin")
     top = st.columns([4, 1])
     days = top[0].radio("Period", [1, 7, 30], index=1, horizontal=True, format_func=lambda d: f"{d} day(s)")
-    if top[1].button("Sign out"):
+    if require_gate and top[1].button("Sign out"):
         admin_gate.sign_out(st.session_state[f"_gate_{scope}"])
         st.rerun()
 
