@@ -84,11 +84,15 @@ def csv_text(rows: list[dict]) -> str:
     return buf.getvalue()
 
 
-def cap_line(spent: float, cap: float | None) -> str:
-    """Escaped dollar signs: Streamlit renders "$0.0002 of $1.00" as LaTeX and the signs vanish."""
-    if not cap:
-        return f"\\${spent:.4f}"
-    return f"\\${spent:.4f} of \\${cap:.2f} ({spent / cap:.0%})"
+def cap_line(spent: float, cap: float | None = None) -> str:
+    """The metric value: just the amount, so it fits a laptop-width column. Dollar signs escaped: Streamlit renders
+    "$0.0002 ... $1.00" as LaTeX and the signs vanish (both seen on the first check of the Traces page)."""
+    return f"\\${spent:.4f}"
+
+
+def cost_label(name: str, cap: float | None, spent: float = 0.0) -> str:
+    """The metric label carries the cap: "Cost today · 0% of the $1.00 cap"."""
+    return f"{name} · {spent / cap:.0%} of the \\${cap:.2f} cap" if cap else name
 
 
 def ms(value) -> str:
@@ -153,12 +157,15 @@ def render(
     s = oplog.summarize(rows)
     sm = oplog.summarize(month_rows)
 
-    c = st.columns(5)
+    # Two rows of short values: five long ones in one row were cut off ("2.87 ...") on a laptop-width window.
+    c = st.columns(4)
     c[0].metric("Requests", s["total"])
     c[1].metric("Error rate", f"{s['error_rate']:.1%}")
-    c[2].metric("p50 / p95", f"{ms(s['p50_ms'])} / {ms(s['p95_ms'])}")
-    c[3].metric("Cost today", cap_line(sm["cost_today"], cost_cap_day))
-    c[4].metric("Cost this month", cap_line(sm["cost_month"], cost_cap_month))
+    c[2].metric("p50", ms(s["p50_ms"]))
+    c[3].metric("p95", ms(s["p95_ms"]))
+    c = st.columns(2)
+    c[0].metric(cost_label("Cost today", cost_cap_day, sm["cost_today"]), cap_line(sm["cost_today"]))
+    c[1].metric(cost_label("Cost this month", cost_cap_month, sm["cost_month"]), cap_line(sm["cost_month"]))
 
     st.subheader("Requests")
     f = st.columns([1, 2, 2])
@@ -229,7 +236,12 @@ def _waterfall(st, spans: list[dict]) -> None:
             alt.Chart(alt.Data(values=rows))
             .mark_bar()
             .encode(
-                y=alt.Y("step:N", sort=[r["step"] for r in rows], title=None),  # explicit order, one row each
+                y=alt.Y(
+                    "step:N",
+                    sort=[r["step"] for r in rows],  # explicit order, one row each
+                    title=None,
+                    axis=alt.Axis(labelLimit=280, labelOverlap=False),  # never hide a step's name
+                ),
                 x=alt.X("start_ms:Q", title="milliseconds from the start of the request"),
                 x2="end_ms:Q",
                 color=alt.Color(
@@ -238,9 +250,9 @@ def _waterfall(st, spans: list[dict]) -> None:
                 ),  # fmt: skip
                 tooltip=["step:N", "duration_ms:Q", "status:N"],
             )
-            .properties(height=max(120, 26 * len(rows)))
         )
-        st.altair_chart(chart, use_container_width=True)
+        # Height passed to Streamlit itself: a chart property alone rendered about 40 px tall on the first check
+        st.altair_chart(chart, width="stretch", height=max(140, 30 * len(rows) + 50))
     except Exception:
         st.dataframe(rows, hide_index=True)
 

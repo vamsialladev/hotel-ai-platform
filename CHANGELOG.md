@@ -3,6 +3,14 @@
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions
 follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-10-25
+
+### Fixed
+
+- Admin metrics in two rows with short values (cost and p50/p95 were cut off at laptop width); the cost cap and
+  its percentage moved into the label. Waterfall height set on the chart element (it rendered about 40 px tall)
+  and step names never hidden.
+
 ## [0.1.1] - 2026-10-25
 
 ### Fixed

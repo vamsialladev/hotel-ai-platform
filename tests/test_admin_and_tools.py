@@ -85,8 +85,9 @@ def test_waterfall_rows_depth_and_order():
 
 def test_cap_line_and_ms():
     # Escaped: Streamlit turns "$0.5 of $2" into LaTeX and the dollar signs vanish (seen on the live Traces page)
-    assert admin_ui.cap_line(0.5, 2.0) == r"\$0.5000 of \$2.00 (25%)"
-    assert admin_ui.cap_line(0.5, None) == r"\$0.5000"
+    assert admin_ui.cap_line(0.5) == r"\$0.5000"
+    assert admin_ui.cost_label("Cost today", 2.0, 0.5) == r"Cost today · 25% of the \$2.00 cap"
+    assert admin_ui.cost_label("Cost today", None, 0.5) == "Cost today"
     assert admin_ui.ms(None) == "—" and admin_ui.ms(1500) == "1.50 s"
 
 
@@ -117,7 +118,14 @@ admin_ui.render(store, app_title="Demo", version="1.0+abc", cost_cap_day=1.0, co
     at.button[0].click().run()
     assert not at.exception
     labels = [m.label for m in at.metric]
-    assert labels == ["Requests", "Error rate", "p50 / p95", "Cost today", "Cost this month"]
+    assert labels == [
+        "Requests",
+        "Error rate",
+        "p50",
+        "p95",
+        r"Cost today · 0% of the \$1.00 cap",
+        r"Cost this month · 0% of the \$10.00 cap",
+    ]
     assert at.metric[0].value == "1" and at.metric[1].value == "100.0%"
 
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hotel-ai-platform"
-version = "0.1.1"
+version = "0.1.2"
 description = "Shared guardrails, PII redaction, tracing, request logging and Admin for the hotel AI apps"
 readme = "README.md"
 requires-python = ">=3.12"
