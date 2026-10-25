@@ -1,0 +1,60 @@
+name: CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint, tests, red-team gate, audit, SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements-dev.txt
+      - name: Lint and format check
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Tests (coverage gate 85%; no database or API needed)
+        run: python -m pytest -q --cov --cov-report=term-missing --cov-fail-under=85
+      - name: "Gate: shared red-team corpus must pass 100%"
+        run: python -m hotelplatform.redteam --min-pass 1.0
+      - name: Dependency audit
+        run: pip-audit --skip-editable --progress-spinner off
+      - name: SBOM (CycloneDX)
+        run: cyclonedx-py environment --output-format JSON --output-file sbom.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sbom
+          path: sbom.json
+
+  links:
+    name: Link check (lychee)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress --max-retries 3 --accept "200..=299,303,403,429,503,999"
+            --exclude "^https://(www\.)?linkedin\.com" --exclude "^https?://localhost"
+            --exclude "^https://github\.com/vamsialladev/hotel-ai-platform/actions"
+            README.md SECURITY.md CONTRIBUTING.md CHANGELOG.md CODE_OF_CONDUCT.md 'docs/**/*.md'
+          fail: true
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: gitleaks (full history)
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.24.2/gitleaks_8.24.2_linux_x64.tar.gz | tar -xz gitleaks
+          ./gitleaks git --redact --verbose --exit-code 1 .

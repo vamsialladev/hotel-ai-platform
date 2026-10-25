@@ -1,0 +1,13 @@
+.git
+.venv
+.env
+.env.*
+secrets
+__pycache__
+.pytest_cache
+.ruff_cache
+.coverage
+.cache
+docs/video
+data/*.db
+data/*.db-*

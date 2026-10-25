@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hotel-ai-platform"
+version = "0.1.0"
+description = "Shared guardrails, PII redaction, tracing, request logging and Admin for the hotel AI apps"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Vamsi Alla" }]
+dependencies = []  # standard library only; the extras below are optional
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]~=3.3"]
+admin = ["streamlit~=1.66.1"]
+
+[project.urls]
+Homepage = "https://vamsialla.com"
+Source = "https://github.com/vamsialladev/hotel-ai-platform"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+hotelplatform = ["data/*.jsonl"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["src/hotelplatform"]
