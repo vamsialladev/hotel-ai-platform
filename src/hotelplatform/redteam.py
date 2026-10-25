@@ -101,6 +101,8 @@ def input_handler(policy: guardrails.InputPolicy | None = None) -> Handler:
         v = guardrails.check_input(case.text, policy)
         if not v.allowed:
             return Outcome("block", v.reason, ", ".join(v.reasons))
+        if any(f.startswith("injection_removed") for f in v.flags):
+            return Outcome("quarantine", None, v.text[:120])
         if any(f.startswith("pii_redacted") for f in v.flags):
             return Outcome("redact", None, ", ".join(v.flags))
         return Outcome("allow", None, ", ".join(v.flags))
