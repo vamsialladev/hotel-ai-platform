@@ -19,7 +19,7 @@ synthetic. This is a support library, like `streamlit-keep-awake`, so it has no 
 |---|---|
 | Problem | Seven apps each grew their own PII scrubber, injection patterns and log format. A fix in one never reached the others. |
 | Solution | One standard-library package, pinned by tag in every app: input and output guardrails, tracing, a shared Neon log, one Admin page. |
-| Measured quality | 122 tests, 95% coverage. Shared red-team corpus 48/48 (40 attacks stopped, 0 of 8 benign controls blocked); 0 of 383 real eval inputs from the apps wrongly blocked; see [docs/RED_TEAM.md](docs/RED_TEAM.md) for why that number flatters. |
+| Measured quality | 123 tests, 95% coverage. Shared red-team corpus 48/48 (40 attacks stopped, 0 of 8 benign controls blocked); 0 of 383 real eval inputs from the apps wrongly blocked; see [docs/RED_TEAM.md](docs/RED_TEAM.md) for why that number flatters. |
 | Cost | $0 per request. Every check is a regular expression or a checksum: no model, no network. |
 
 ## The problem
@@ -96,7 +96,7 @@ More in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Results
 
-- Tests: 122 passed, 95% line coverage (`pytest --cov`).
+- Tests: 123 passed, 95% line coverage (`pytest --cov`).
 - Shared red-team corpus: 48/48. I wrote those cases while writing the patterns, so treat it as a regression
   floor, not a measure of real-world robustness. The per-app suites and their held-out cases are the real test.
 - One real bug the tests caught: PII scrubbing ran before secret masking, and the phone pattern broke the shape
