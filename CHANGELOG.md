@@ -3,6 +3,13 @@
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions
 follow [Semantic Versioning](https://semver.org/).
 
+## [0.1.3] - 2026-10-25
+
+### Fixed
+
+- Language check: one stop word no longer makes a message foreign (stage 8's "Bookings per property?" was blocked as
+  Italian because of "per"). Stop words count once each; another language needs 2 (decision 10).
+
 ## [0.1.2] - 2026-10-25
 
 ### Fixed

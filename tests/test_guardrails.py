@@ -23,6 +23,8 @@ def quiet_logs(tmp_path):
         ("プールは何時に開きますか", "ja"),
         ("Во сколько открывается бассейн?", "ru"),
         ("pool?", "unknown"),
+        ("Bookings per property?", "unknown"),  # "per" alone is not Italian (stage 8 false alarm)
+        ("Revenue per room per night", "unknown"),
         ("", "unknown"),
     ],
 )

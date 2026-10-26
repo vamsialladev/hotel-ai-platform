@@ -21,6 +21,7 @@ STOP_WORDS = {
     "it": "il lo la gli le è sono e di del per in che quando dove come posso mio io lei un una c'è con "
     "per favore".split(),
 }
+MIN_FOREIGN_HITS = 2  # stop-word hits needed to call a message a language other than English
 WORD = re.compile(r"[^\W\d_]+(?:'[^\W\d_]+)?", re.UNICODE)
 SCRIPTS = {"CJK": "zh", "HIRAGANA": "ja", "KATAKANA": "ja", "HANGUL": "ko", "CYRILLIC": "ru", "ARABIC": "ar",
            "HEBREW": "he", "DEVANAGARI": "hi", "THAI": "th", "GREEK": "el"}  # fmt: skip
@@ -54,11 +55,18 @@ def detect(text: str) -> str:
     words = [w.lower() for w in WORD.findall(text)]
     if len(words) < 3:
         return "unknown"
-    scores = {lang: sum(w in set(sw) for w in words) for lang, sw in STOP_WORDS.items()}
+    distinct = set(words)  # "per room per night" is one Italian stop word, not two
+    scores = {lang: len(distinct & set(sw)) for lang, sw in STOP_WORDS.items()}
     if any(ch in text for ch in "¿¡ñ"):
         scores["es"] += 2
     best, score = max(scores.items(), key=lambda kv: kv[1])
     ties = [lang for lang, s in scores.items() if s == score]
     if score == 0 or (len(ties) > 1 and "en" not in ties):
         return "unknown"
-    return "en" if len(ties) > 1 else best
+    if len(ties) > 1:
+        return "en"
+    # One stop word is too little to call a message foreign: "Bookings per property?" has only "per" (Italian), and
+    # blocking it as "not English or Spanish" was a real false alarm in stage 8's app tests.
+    if best != "en" and score < MIN_FOREIGN_HITS:
+        return "unknown"
+    return best
