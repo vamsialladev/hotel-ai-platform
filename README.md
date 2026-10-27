@@ -13,6 +13,8 @@ synthetic. This is a support library, like `streamlit-keep-awake`, so it has no 
 
 <!-- DEMO-VIDEO -->
 
+**▶ Try it live:** it's a library, so there's no app of its own. You can see it working in the [Knowledge Assistant](https://hotel-ops-assistant.streamlit.app) and the [Guest Request Agent](https://guest-request-agent.streamlit.app) (free hosting: may take ~30 s to wake).
+
 ## At a glance
 
 | | |
