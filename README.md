@@ -13,6 +13,8 @@ synthetic. This is a support library, like `streamlit-keep-awake`, so it has no 
 
 <!-- DEMO-VIDEO -->
 
+**▶ Try it live:** it's a library, so there's no app of its own. You can see it working in the [Knowledge Assistant](https://hotel-ops-assistant.streamlit.app) and the [Guest Request Agent](https://guest-request-agent.streamlit.app) (free hosting: may take ~30 s to wake).
+
 ## At a glance
 
 | | |
@@ -118,6 +120,9 @@ measure it by counting how many apps pick up a guardrail fix within a week.
   database. Fix: an OpenTelemetry exporter to a collector, and a time-partitioned table (or a log service).
 - **Observability:** every request has a trace; blocks are log lines with trace ID and reason; Admin shows the
   waterfall; a daily Action checks error rates.
+- **Hallucination detection:** `check_output` runs on every answer. An answer with no citation is replaced with "I
+  couldn't find that in the hotel's documents"; a number that isn't in the sources is flagged in the trace (or
+  blocked, if an app sets `numbers="block"`).
 - **Failure modes and rollback:** the database down → rows go to a local file and a counter goes up; the request
   is unaffected. Apps pin a tag, so rolling back is changing one line in `requirements.txt`.
 
