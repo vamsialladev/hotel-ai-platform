@@ -1,5 +1,5 @@
 -e .[postgres]
-pytest~=9.1
+pytest~=9.2
 pytest-cov~=7.1
 ruff==0.17.0
 pip-audit~=2.9
