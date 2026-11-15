@@ -14,7 +14,7 @@ dependencies = []  # standard library only; the extras below are optional
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]~=3.3"]
-admin = ["streamlit~=1.66.1"]
+admin = ["streamlit>=1.66.1,<1.68.0"]
 
 [project.urls]
 Homepage = "https://vamsialla.com"

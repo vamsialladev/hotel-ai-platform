@@ -3,5 +3,5 @@ pytest~=9.1
 pytest-cov~=7.1
 ruff==0.17.0
 pip-audit~=2.9
-streamlit~=1.66.1
+streamlit>=1.66.1,<1.68.0
 cyclonedx-bom~=7.1
